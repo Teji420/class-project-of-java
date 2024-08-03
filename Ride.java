@@ -1,29 +1,33 @@
+package com.example.models; // Adjust the package name
+
+import java.io.BufferedWriter;
+import java.io.FileWriter;
+import java.io.IOException;
 import java.util.LinkedList;
-import java.util.Queue;
 
-public class Ride implements RideInterface {
-    private String rideName;
+public class Ride {
     private Employee operator;
-    private Queue<Visitor> queue;
-    private LinkedList<Visitor> rideHistory;
+    private String rideName;
     private int maxRiders;
+    private LinkedList<Visitor> rideHistory; // Using LinkedList to store ride history
 
+    // Default constructor
     public Ride() {
         this.rideName = "";
         this.operator = null;
-        this.queue = new LinkedList<>();
+        this.maxRiders = 0;
         this.rideHistory = new LinkedList<>();
-        this.maxRiders = 1;
     }
 
+    // Constructor with parameters
     public Ride(String rideName, Employee operator, int maxRiders) {
         this.rideName = rideName;
         this.operator = operator;
-        this.queue = new LinkedList<>();
-        this.rideHistory = new LinkedList<>();
         this.maxRiders = maxRiders;
+        this.rideHistory = new LinkedList<>();
     }
 
+    // Getters and setters
     public String getRideName() {
         return rideName;
     }
@@ -40,14 +44,6 @@ public class Ride implements RideInterface {
         this.operator = operator;
     }
 
-    public Queue<Visitor> getQueue() {
-        return queue;
-    }
-
-    public LinkedList<Visitor> getRideHistory() {
-        return rideHistory;
-    }
-
     public int getMaxRiders() {
         return maxRiders;
     }
@@ -56,57 +52,26 @@ public class Ride implements RideInterface {
         this.maxRiders = maxRiders;
     }
 
-    @Override
-    public void addVisitorToQueue(Visitor visitor) {
-        queue.add(visitor);
-        System.out.println("Visitor " + visitor.getFirstName() + " added to the queue.");
+    public LinkedList<Visitor> getRideHistory() {
+        return rideHistory;
     }
 
-    @Override
-    public void removeVisitorFromQueue(Visitor visitor) {
-        if (queue.remove(visitor)) {
-            System.out.println("Visitor " + visitor.getFirstName() + " removed from the queue.");
-        } else {
-            System.out.println("Visitor " + visitor.getFirstName() + " not found in the queue.");
-        }
-    }
-
-    @Override
-    public void printQueue() {
-        System.out.println("Queue:");
-        for (Visitor v : queue) {
-            System.out.println("Name: " + v.getFirstName() + " " + v.getLastName() + ", ID: " + v.getId());
-        }
-    }
-
-    @Override
-    public void printRideHistory() {
-        System.out.println("Ride History:");
-        for (Visitor v : rideHistory) {
-            System.out.println("Name: " + v.getFirstName() + " " + v.getLastName() + ", ID: " + v.getId());
-        }
-    }
-
-    public void runOneCycle() {
-        if (operator == null) {
-            System.out.println("No operator assigned to the ride. Cannot run.");
-            return;
-        }
-
-        if (queue.isEmpty()) {
-            System.out.println("No visitors in the queue. Cannot run.");
-            return;
-        }
-
-        int visitorsToMove = Math.min(maxRiders, queue.size());
-
-        for (int i = 0; i < visitorsToMove; i++) {
-            Visitor visitor = queue.poll();
-            if (visitor != null) {
-                rideHistory.add(visitor);
+    // Method to write visitor details to a CSV file
+    public void exportRideHistoryToCSV(String filename) {
+        try (BufferedWriter writer = new BufferedWriter(new FileWriter(filename))) {
+            for (Visitor visitor : rideHistory) {
+                String line = String.format("%s,%s,%d,%d,%s",
+                        visitor.getFirstName(),
+                        visitor.getLastName(),
+                        visitor.getId(),
+                        visitor.getTicketNumber(),
+                        visitor.getVisitDate());
+                writer.write(line);
+                writer.newLine();
             }
+            System.out.println("Ride history successfully exported to " + filename);
+        } catch (IOException e) {
+            System.err.println("Error writing to file: " + e.getMessage());
         }
-
-        System.out.println("Ride cycle completed.");
     }
 }

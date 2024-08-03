@@ -1,3 +1,5 @@
+package com.example.models; // Adjust the package name
+
 public abstract class Person {
     private String firstName;
     private String lastName;
